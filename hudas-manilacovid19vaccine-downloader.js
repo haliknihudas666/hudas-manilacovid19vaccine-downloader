@@ -2,13 +2,14 @@ const axios = require('axios').default;
 const download = require('download');
 const inquirer = require('inquirer');
 const fs = require('fs');
+const chalk = require('chalk');
 const timer = ms => new Promise(res => setTimeout(res, ms))
 
 async function main() {
     console.clear()
     if (!fs.existsSync(process.cwd() + `/documents/`)) {
         fs.mkdirSync(process.cwd() + `/documents/`);
-        console.log('Created Documents Folder\n')
+        console.log(chalk.green('Created Documents Folder\n'))
     }
 
     let getMethod = await inquirer.prompt({
@@ -32,8 +33,9 @@ async function main() {
 
         let inputInquirer = await inquirer.prompt(inputPrompts);
 
-        loginUsingUsingNumberName(inputInquirer.mobileNumber, inputInquirer.firstName)
+        loginUsingNumberName(inputInquirer.mobileNumber, inputInquirer.firstName)
     } else {
+        console.log(chalk.red.bold('\nWARNING: ') + chalk.yellow('The website is using rate limitation and might block you for a minute when using this method.\n'));
         let inputPrompts = [{
             type: "input",
             name: "referenceID",
@@ -55,14 +57,13 @@ async function main() {
         }
 
         while (!response) {
-            console.clear()
-            console.log('TRIES ' + registrationID)
+            console.log(chalk.blue('TRIES ' + registrationID))
             await timer(500);
             response = await getData(registrationID, inputInquirer.referenceID)
 
             if (response === 403 || response === 429) {
                 response = false;
-                console.log('RATE LIMITED SLEEPING FOR 2 MINUTES')
+                console.log(chalk.yellow('RATE LIMITED SLEEPING FOR 2 MINUTES'))
                 await timer(1000 * 60 * 2);
             } else {
                 registrationID++
@@ -73,7 +74,7 @@ async function main() {
 
 main();
 
-async function loginUsingUsingNumberName(mobileNumber, firstName) {
+async function loginUsingNumberName(mobileNumber, firstName) {
     const login = await axios({
         method: 'get',
         url: `https://www.manilacovid19vaccine.ph/search-otp-ajax.php?MobileNo=${mobileNumber}&FirstName=${firstName}`,
@@ -109,32 +110,32 @@ async function getData(registrationID, referenceID) {
     if (!getCert.data.includes('<script>')) {
         if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/`)) {
             fs.mkdirSync(process.cwd() + `/documents/${referenceID}/`);
-            console.log(`Created '/documents/${referenceID}/' Folder\n`)
+            console.log(chalk.green(`Created '/documents/${referenceID}/' Folder\n`))
         }
 
         fs.writeFileSync(`documents/${referenceID}/waiver.pdf`, await download(`https://www.manilacovid19vaccine.ph/waiver.php?RegistrationID=${registrationID}&ReferenceID=${referenceID}`));
-        console.log('DOWNLOADED Waiver OF ' + referenceID)
+        console.log(chalk.green('DOWNLOADED Waiver OF ' + referenceID))
 
         fs.writeFileSync(`documents/${referenceID}/passport-vaccination-id.pdf`, await download(`https://www.manilacovid19vaccine.ph/my-passport-vaccination-id.php?RegistrationID=${registrationID}&ReferenceID=${referenceID}`, '', {
             headers: {
                 cookie: verify.headers['set-cookie']
             }
         }));
-        console.log('DOWNLOADED Vaccination ID OF ' + referenceID)
+        console.log(chalk.green('DOWNLOADED Vaccination ID OF ' + referenceID))
 
         fs.writeFileSync(`documents/${referenceID}/passport-vaccination-id-back.pdf`, await download(`https://www.manilacovid19vaccine.ph/my-passport-vaccination-id-back.php?RegistrationID=${registrationID}&ReferenceID=${referenceID}`, '', {
             headers: {
                 cookie: verify.headers['set-cookie']
             }
         }));
-        console.log('DOWNLOADED Vaccination ID Back OF ' + referenceID)
+        console.log(chalk.green('DOWNLOADED Vaccination ID Back OF ' + referenceID))
 
         fs.writeFileSync(`documents/${referenceID}/vaccination-certificate.pdf`, await download(`https://www.manilacovid19vaccine.ph/my-passport-certificate-print.php?RegistrationID=${registrationID}&ReferenceID=${referenceID}`, '', {
             headers: {
                 cookie: verify.headers['set-cookie']
             }
         }));
-        console.log('DOWNLOADED Vaccination Certificate OF ' + referenceID)
+        console.log(chalk.green('DOWNLOADED Vaccination Certificate OF ' + referenceID))
 
         const getFamily = await axios({
             method: 'get',
@@ -160,12 +161,12 @@ async function getData(registrationID, referenceID) {
 
             if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/family/`)) {
                 fs.mkdirSync(process.cwd() + `/documents/${referenceID}/family/`);
-                console.log(`Created '/documents/${referenceID}/family/' Folder\n`)
+                console.log(chalk.green(`Created '/documents/${referenceID}/family/' Folder\n`))
             }
 
             if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/family/${famReferenceID}/`)) {
                 fs.mkdirSync(process.cwd() + `/documents/${referenceID}/family/${famReferenceID}/`);
-                console.log(`Created '/documents/${referenceID}/family/${famReferenceID}/' Folder\n`)
+                console.log(chalk.green(`Created '/documents/${referenceID}/family/${famReferenceID}/' Folder\n`))
             }
 
             var fileName;
@@ -186,7 +187,7 @@ async function getData(registrationID, referenceID) {
                 }
             }));
 
-            console.log(`DOWNLOADED FAMILY ${fileName} OF ${famReferenceID}`)
+            console.log(chalk.green(`DOWNLOADED FAMILY ${fileName} OF ${famReferenceID}`))
         })
 
         return true
