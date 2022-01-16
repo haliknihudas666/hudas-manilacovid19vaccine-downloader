@@ -1,6 +1,6 @@
 {
   "name": "hudas-manilacovid19vaccine-downloader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "hudas-manilacovid19vaccine-downloader.js",
   "scripts": {
@@ -12,10 +12,13 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.24.0",
+    "chalk": "^4.0.0",
     "download": "^8.0.0",
     "inquirer": "^8.2.0"
   },
   "pkg": {
-    "assets": ["node_modules/**/*"]
+    "assets": [
+      "node_modules/**/*"
+    ]
   }
 }
