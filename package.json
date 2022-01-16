@@ -1,0 +1,21 @@
+{
+  "name": "hudas-manilacovid19vaccine-downloader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hudas-manilacovid19vaccine-downloader.js",
+  "scripts": {
+    "start": "node hudas-manilacovid19vaccine-downloader.js",
+    "build": "pkg --compress GZip hudas-manilacovid19vaccine-downloader.js --out-path releases"
+  },
+  "keywords": [],
+  "author": "Fernando Nicolei Esperida",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "download": "^8.0.0",
+    "inquirer": "^8.2.0"
+  },
+  "pkg": {
+    "assets": ["node_modules/**/*"]
+  }
+}
