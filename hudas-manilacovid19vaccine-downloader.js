@@ -65,6 +65,9 @@ async function main() {
                 response = false;
                 console.log(chalk.yellow('RATE LIMITED SLEEPING FOR 2 MINUTES'))
                 await timer(1000 * 60 * 2);
+            } else if (response === true) {
+                console.log(chalk.green('DOWNLOAD DONE'))
+                process.stdin.resume();
             } else {
                 registrationID++
             }
@@ -82,7 +85,11 @@ async function loginUsingNumberName(mobileNumber, firstName) {
     var registrationID = login.data.split('!')[1]
     var referenceID = login.data.split('!')[2]
 
-    getData(registrationID, referenceID)
+    var data = await getData(registrationID, referenceID)
+    if (data) {
+        console.log(chalk.bold.green('\nDOWNLOAD DONE'))
+        process.stdin.resume();
+    }
 }
 
 async function getData(registrationID, referenceID) {
