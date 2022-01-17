@@ -110,7 +110,7 @@ async function getData(registrationID, referenceID) {
     if (!getCert.data.includes('<script>')) {
         if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/`)) {
             fs.mkdirSync(process.cwd() + `/documents/${referenceID}/`);
-            console.log(chalk.green(`Created '/documents/${referenceID}/' Folder\n`))
+            console.log(chalk.green(`\nCreated '/documents/${referenceID}/' Folder\n`))
         }
 
         fs.writeFileSync(`documents/${referenceID}/waiver.pdf`, await download(`https://www.manilacovid19vaccine.ph/waiver.php?RegistrationID=${registrationID}&ReferenceID=${referenceID}`));
@@ -135,7 +135,7 @@ async function getData(registrationID, referenceID) {
                 cookie: verify.headers['set-cookie']
             }
         }));
-        console.log(chalk.green('DOWNLOADED Vaccination Certificate OF ' + referenceID))
+        console.log(chalk.green('DOWNLOADED Vaccination Certificate OF ' + referenceID + '\n'))
 
         const getFamily = await axios({
             method: 'get',
@@ -152,43 +152,45 @@ async function getData(registrationID, referenceID) {
             familyMembers.push('https://manilacovid19vaccine.ph/' + element.replace('href=', '').replace('"', '').replace('"', ''))
         });
 
-        familyMembers.forEach(async element => {
+        for (const element of familyMembers) {
             var famReferenceID = element.split('?')[1].split('&')[1].replace('ReferenceID=', '');
 
-            if (famReferenceID == referenceID) {
-                return;
-            }
-
-            if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/family/`)) {
-                fs.mkdirSync(process.cwd() + `/documents/${referenceID}/family/`);
-                console.log(chalk.green(`Created '/documents/${referenceID}/family/' Folder\n`))
-            }
-
-            if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/family/${famReferenceID}/`)) {
-                fs.mkdirSync(process.cwd() + `/documents/${referenceID}/family/${famReferenceID}/`);
-                console.log(chalk.green(`Created '/documents/${referenceID}/family/${famReferenceID}/' Folder\n`))
-            }
-
-            var fileName;
-
-            if (element.includes('my-passport-family-members-waiver-registration.php')) {
-                fileName = 'waiver'
-            } else if (element.includes('my-passport-family-members-vaccination-id.php')) {
-                fileName = 'vaccination-id'
-            } else if (element.includes('my-passport-family-members-vaccination-id-back.php')) {
-                fileName = 'vaccination-id-back'
-            } else if (element.includes('my-passport-family-members-vaccination-certificate.php')) {
-                fileName = 'vaccination-certificate'
-            }
-
-            fs.writeFileSync(`documents/${referenceID}/family/${famReferenceID}/${fileName}.pdf`, await download(element, '', {
-                headers: {
-                    cookie: verify.headers['set-cookie']
+            if (famReferenceID != referenceID) {
+                if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/family/`)) {
+                    fs.mkdirSync(process.cwd() + `/documents/${referenceID}/family/`);
+                    console.log(chalk.green(`Created '/documents/${referenceID}/family/' Folder`))
                 }
-            }));
 
-            console.log(chalk.green(`DOWNLOADED FAMILY ${fileName} OF ${famReferenceID}`))
-        })
+                if (!fs.existsSync(process.cwd() + `/documents/${referenceID}/family/${famReferenceID}/`)) {
+                    fs.mkdirSync(process.cwd() + `/documents/${referenceID}/family/${famReferenceID}/`);
+                    console.log(chalk.green(`Created '/documents/${referenceID}/family/${famReferenceID}/' Folder\n`))
+                }
+
+                var fileName;
+
+                if (element.includes('my-passport-family-members-waiver-registration.php')) {
+                    fileName = 'waiver'
+                } else if (element.includes('my-passport-family-members-vaccination-id.php')) {
+                    fileName = 'vaccination-id'
+                } else if (element.includes('my-passport-family-members-vaccination-id-back.php')) {
+                    fileName = 'vaccination-id-back'
+                } else if (element.includes('my-passport-family-members-vaccination-certificate.php')) {
+                    fileName = 'vaccination-certificate'
+                }
+
+                fs.writeFileSync(`documents/${referenceID}/family/${famReferenceID}/${fileName}.pdf`, await download(element, '', {
+                    headers: {
+                        cookie: verify.headers['set-cookie']
+                    }
+                }));
+
+                if (fileName === 'vaccination-certificate') {
+                    console.log(chalk.green(`DOWNLOADED FAMILY ${fileName} OF ${famReferenceID}\n`))
+                } else {
+                    console.log(chalk.green(`DOWNLOADED FAMILY ${fileName} OF ${famReferenceID}`))
+                }
+            }
+        }
 
         return true
     }
